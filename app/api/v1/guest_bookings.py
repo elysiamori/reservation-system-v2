@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from typing import Optional
 
 from app.database import get_db
-from app.dependencies import get_approver_or_admin, get_admin_user
+from app.dependencies import get_approver_or_admin, get_admin_user, get_current_user
 from app.models.user import User
 from app.schemas.guest_booking import (
     GuestBookingCreateRequest,
@@ -13,7 +13,7 @@ from app.schemas.guest_booking import (
 from app.schemas.common import success_response, paginated_response
 from app.services.guest_booking_service import guest_booking_service
 
-router = APIRouter(prefix="/bookings/guest")
+router = APIRouter(prefix="/guest-bookings")
 
 
 # ─── PUBLIC (tanpa login) ─────────────────────────────────────────────────────

@@ -39,25 +39,33 @@ def _serialize(gb: GuestBooking) -> dict:
     }
 
 
-def _check_conflict(db: Session, resource_id: int, start: datetime, end: datetime):
-    """Cek konflik dengan booking biasa DAN guest booking."""
+def _check_conflict(db: Session, resource_id: int, start: datetime, end: datetime, exclude_booking_id: int = None):
     # Cek vs bookings biasa
-    regular_conflict = db.query(Booking).filter(
+    regular_query = db.query(Booking).filter(
         Booking.resourceId == resource_id,
         Booking.status.in_([BookingStatus.PENDING, BookingStatus.APPROVED, BookingStatus.ONGOING]),
         Booking.startDate < end,
-        Booking.endDate   > start,
-    ).first()
+        Booking.endDate > start,
+    )
+
+    if exclude_booking_id:
+        regular_query = regular_query.filter(Booking.id != exclude_booking_id)
+
+    regular_conflict = regular_query.first()
     if regular_conflict:
         raise BookingConflictException()
 
-    # Cek vs guest bookings
-    guest_conflict = db.query(GuestBooking).filter(
+    guest_query = db.query(GuestBooking).filter(
         GuestBooking.resourceId == resource_id,
-        GuestBooking.status.in_(["PENDING", "APPROVED", "ONGOING"]),
+        GuestBooking.status.in_([BookingStatus.PENDING, BookingStatus.APPROVED, BookingStatus.ONGOING]),
         GuestBooking.startDate < end,
-        GuestBooking.endDate   > start,
-    ).first()
+        GuestBooking.endDate > start,
+    )
+
+    if exclude_booking_id:
+        guest_query = guest_query.filter(GuestBooking.id != exclude_booking_id)
+
+    guest_conflict = guest_query.first()
     if guest_conflict:
         raise BookingConflictException()
 
@@ -154,7 +162,7 @@ class GuestBookingService:
         if gb.status != "PENDING":
             raise ForbiddenException(f"Hanya PENDING yang bisa diapprove. Status: {gb.status}")
 
-        _check_conflict(db, gb.resourceId, gb.startDate, gb.endDate)
+        _check_conflict(db, gb.resourceId, gb.startDate, gb.endDate, exclude_booking_id=guest_booking_id)
 
         gb.status      = "APPROVED"
         gb.approvedById = actor_id

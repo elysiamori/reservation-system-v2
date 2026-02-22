@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Text, ForeignKey, TIMESTAMP
+from sqlalchemy import Column, Integer, String, Text, ForeignKey, TIMESTAMP, Enum
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from app.database import Base
@@ -17,7 +17,7 @@ class GuestBooking(Base):
     startDate       = Column("startDate",      TIMESTAMP(timezone=True), nullable=False)
     endDate         = Column("endDate",        TIMESTAMP(timezone=True), nullable=False)
     purpose         = Column(Text, nullable=False)
-    status          = Column(BookingStatus.__class__, nullable=False, default="PENDING")
+    status          = Column(Enum(BookingStatus), default=BookingStatus.PENDING, nullable=False, index=True)
     accessToken     = Column("accessToken",    String(64),  nullable=False, unique=True)
     approvedById    = Column("approvedById",   Integer, ForeignKey("users.id"), nullable=True)
     approvedAt      = Column("approvedAt",     TIMESTAMP(timezone=True), nullable=True)

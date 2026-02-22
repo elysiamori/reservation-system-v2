@@ -23,7 +23,7 @@ def list_vehicles(
     categoryId: Optional[int] = Query(None),
     status:     Optional[str] = Query(None, description="AVAILABLE | MAINTENANCE | INACTIVE"),
     db:         Session       = Depends(get_db),
-    _:          User          = Depends(get_current_user),
+    # _:          User          = Depends(get_current_user),
 ):
     data, total = vehicle_service.list_vehicles(db, page, limit, search, categoryId, status)
     return paginated_response("Vehicles retrieved successfully", data, total, page, limit)

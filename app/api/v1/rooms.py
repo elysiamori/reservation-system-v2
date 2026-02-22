@@ -20,7 +20,7 @@ def list_rooms(
     status:      Optional[str] = Query(None, description="AVAILABLE | MAINTENANCE | INACTIVE"),
     minCapacity: Optional[int] = Query(None, ge=1),
     db:          Session       = Depends(get_db),
-    _:           User          = Depends(get_current_user),
+    # _:           User          = Depends(get_current_user),
 ):
     data, total = room_service.list_rooms(db, page, limit, search, status, minCapacity)
     return paginated_response("Rooms retrieved successfully", data, total, page, limit)
