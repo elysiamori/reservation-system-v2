@@ -73,9 +73,10 @@ class BookingService:
         q = db.query(Booking)
 
         # Role-based visibility
-        if current_user.role.name == RoleName.EMPLOYEE:
-            q = q.filter(Booking.userId == current_user.id)
-        elif current_user.role.name == RoleName.DRIVER:
+        # if current_user.role.name == RoleName.EMPLOYEE:
+        #     q = q.filter(Booking.userId == current_user.id)
+
+        if current_user.role.name == RoleName.DRIVER:
             # Driver sees bookings linked to their assigned vehicles
             from app.models.driver import Driver
             from app.models.driver_assignment import DriverAssignment
@@ -101,7 +102,7 @@ class BookingService:
         if resource_type:
             q = q.join(Resource, Booking.resourceId == Resource.id)\
                  .filter(Resource.type == resource_type)
-        if user_id and current_user.role.name in [RoleName.ADMIN, RoleName.APPROVER]:
+        if user_id and current_user.role.name in [RoleName.ADMIN, RoleName.APPROVER, RoleName.EMPLOYEE]:
             q = q.filter(Booking.userId == user_id)
         if start_date:     q = q.filter(Booking.startDate >= start_date)
         if end_date:       q = q.filter(Booking.endDate   <= end_date)

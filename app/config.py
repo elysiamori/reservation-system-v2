@@ -28,7 +28,7 @@ class Settings(BaseSettings):
     OTP_LENGTH:         int = 6
 
     # ─── CORS ──────────────────────────────────────────────────────────────────
-    CORS_ORIGINS: str = "http://localhost:3000,http://localhost:5173"
+    CORS_ORIGINS: str = "http://localhost:8000,http://localhost:5501,https://reservation-system-kce.netlify.app"
 
     def get_cors_origins(self) -> List[str]:
         return [o.strip() for o in self.CORS_ORIGINS.split(",")]

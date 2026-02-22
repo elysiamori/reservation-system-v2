@@ -24,6 +24,7 @@ from app.api.v1 import fuel_expenses
 from app.api.v1 import maintenance
 from app.api.v1 import reports
 from app.api.v1 import guest_bookings
+from app.api.v1 import attachments
 
 logging.basicConfig(
     level=logging.INFO,
@@ -45,7 +46,14 @@ def create_app() -> FastAPI:
     # ─── CORS ─────────────────────────────────────────────────────────────────
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=settings.get_cors_origins(),
+        allow_origins=[
+            "http://localhost:3000",  # React dev server
+            "http://localhost:8000",  # Local API
+            "http://127.0.0.1:3000",
+            "http://127.0.0.1:8000",
+            "https://abstemiously-gymnocarpous-hans.ngrok-free.dev",  # Domain ngrok Anda
+            "*"
+        ],
         allow_credentials=True,
         allow_methods=["*"],
         allow_headers=["*"],
@@ -68,6 +76,7 @@ def create_app() -> FastAPI:
     app.include_router(fuel_expenses.router, prefix=PREFIX, tags=["Fuel Expenses"])
     app.include_router(maintenance.router,   prefix=PREFIX, tags=["Maintenance"])
     app.include_router(guest_bookings.router, prefix=PREFIX, tags=["Guest Bookings"])
+    app.include_router(attachments.router,   prefix=PREFIX, tags=["Attachments"])
     app.include_router(reports.router,       prefix=PREFIX, tags=["Reports"])
 
     # ─── Startup ──────────────────────────────────────────────────────────────

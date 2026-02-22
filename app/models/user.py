@@ -12,6 +12,7 @@ class User(Base):
     name         = Column(String(150), nullable=False)
     email        = Column(String(255), unique=True, nullable=False, index=True)
     password     = Column(String(255), nullable=False)
+    profilePhoto = Column(String(500), nullable=True)
     isActive     = Column(Boolean, default=True, nullable=False)
     roleId       = Column(Integer, ForeignKey("roles.id"), nullable=False)
     departmentId = Column(Integer, ForeignKey("departments.id"), nullable=False)
