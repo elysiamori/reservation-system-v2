@@ -46,14 +46,7 @@ def create_app() -> FastAPI:
     # ─── CORS ─────────────────────────────────────────────────────────────────
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=[
-            "http://localhost:3000",  # React dev server
-            "http://localhost:8000",  # Local API
-            "http://127.0.0.1:3000",
-            "http://127.0.0.1:8000",
-            "https://abstemiously-gymnocarpous-hans.ngrok-free.dev",  # Domain ngrok Anda
-            "*"
-        ],
+        allow_origins=["*"],
         allow_credentials=True,
         allow_methods=["*"],
         allow_headers=["*"],
