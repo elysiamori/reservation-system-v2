@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from typing import Optional
 
 from app.database import get_db
-from app.dependencies import get_approver_or_admin, get_admin_user, get_current_user
+from app.dependencies import get_admin_user, get_current_user
 from app.models.user import User
 from app.schemas.guest_booking import (
     GuestBookingCreateRequest,
@@ -98,7 +98,7 @@ def list_guest_bookings(
     status:     Optional[str] = Query(None, description="PENDING|APPROVED|REJECTED|ONGOING|COMPLETED|CANCELLED"),
     resourceId: Optional[int] = Query(None),
     db:         Session       = Depends(get_db),
-    _:          User          = Depends(get_approver_or_admin),
+    _:          User          = Depends(get_admin_user),
 ):
     data, total = guest_booking_service.list_all(db, page, limit, status, resourceId)
     return paginated_response("Guest bookings retrieved", data, total, page, limit)
@@ -111,7 +111,7 @@ def list_guest_bookings(
 def approve_guest_booking(
     guest_booking_id: int,
     db:               Session = Depends(get_db),
-    current_user:     User    = Depends(get_approver_or_admin),
+    current_user:     User    = Depends(get_admin_user),
 ):
     data = guest_booking_service.approve(db, guest_booking_id, None, current_user.id)
     return success_response("Guest booking diapprove", data)
@@ -125,7 +125,7 @@ def reject_guest_booking(
     guest_booking_id: int,
     note:             str,
     db:               Session = Depends(get_db),
-    current_user:     User    = Depends(get_approver_or_admin),
+    current_user:     User    = Depends(get_admin_user),
 ):
     data = guest_booking_service.reject(db, guest_booking_id, note, current_user.id)
     return success_response("Guest booking direject", data)

@@ -19,9 +19,13 @@ from app.models.driver import Driver
 from app.models.booking import Booking
 from app.models.approval_log import ApprovalLog
 from app.models.driver_assignment import DriverAssignment
-from app.models.fuel_expense import FuelExpense
+from app.models.fuel_expense import FuelExpense, FuelType
 from app.models.maintenance_record import MaintenanceRecord
 from app.models.audit_log import AuditLog
+from app.models.driver_rating import DriverRating
+from app.models.master_setting import MasterSetting
+from app.models.guest_booking import GuestBooking
+from app.models.attachment import Attachment
 
 __all__ = [
     "Role",
@@ -38,6 +42,11 @@ __all__ = [
     "ApprovalLog",
     "DriverAssignment",
     "FuelExpense",
+    "FuelType",
     "MaintenanceRecord",
     "AuditLog",
+    "DriverRating",
+    "MasterSetting",
+    "GuestBooking",
+    "Attachment",
 ]

@@ -19,6 +19,7 @@ class Driver(Base):
     user          = relationship("User", back_populates="driver_profile")
     assignments   = relationship("DriverAssignment", back_populates="driver")
     fuel_expenses = relationship("FuelExpense", back_populates="driver")
+    ratings       = relationship("DriverRating", back_populates="driver")
 
     def __repr__(self):
         return f"<Driver id={self.id} userId={self.userId} isActive={self.isActive}>"

@@ -16,10 +16,7 @@ class BookingCreateRequest(BaseModel):
         return v.strip()
 
     @model_validator(mode="after")
-    def check_dates(self) -> "BookingCreateRequest":
-        now = datetime.now(timezone.utc)
-        if self.startDate.replace(tzinfo=timezone.utc) <= now:
-            raise ValueError("startDate must be in the future")
+    def check_dates(self):
         if self.endDate <= self.startDate:
             raise ValueError("endDate must be after startDate")
         return self
@@ -41,3 +38,21 @@ class RejectRequest(BaseModel):
 
 class CancelRequest(BaseModel):
     note: Optional[str] = None
+
+
+class AssignVehicleRequest(BaseModel):
+    """Admin assigns vehicle and driver to an approved vehicle booking."""
+    driverId:  int
+    vehicleId: int
+
+
+class DriverRatingCreateRequest(BaseModel):
+    rating: int
+    review: Optional[str] = None
+
+    @field_validator("rating")
+    @classmethod
+    def check_rating(cls, v):
+        if not (1 <= v <= 5):
+            raise ValueError("Rating must be between 1 and 5")
+        return v

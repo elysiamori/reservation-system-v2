@@ -25,6 +25,7 @@ from app.api.v1 import maintenance
 from app.api.v1 import reports
 from app.api.v1 import guest_bookings
 from app.api.v1 import attachments
+from app.api.v1 import master_settings
 
 logging.basicConfig(
     level=logging.INFO,
@@ -60,23 +61,33 @@ def create_app() -> FastAPI:
 
     # ─── Routers ──────────────────────────────────────────────────────────────
     PREFIX = "/api/v1"
-    app.include_router(auth.router,          prefix=PREFIX, tags=["Auth"])
-    app.include_router(users.router,         prefix=PREFIX, tags=["Users"])
-    app.include_router(vehicles.router,      prefix=PREFIX, tags=["Vehicles"])
-    app.include_router(rooms.router,         prefix=PREFIX, tags=["Rooms"])
-    app.include_router(bookings.router,      prefix=PREFIX, tags=["Bookings"])
-    app.include_router(drivers.router,       prefix=PREFIX, tags=["Drivers"])
-    app.include_router(fuel_expenses.router, prefix=PREFIX, tags=["Fuel Expenses"])
-    app.include_router(maintenance.router,   prefix=PREFIX, tags=["Maintenance"])
-    app.include_router(guest_bookings.router, prefix=PREFIX, tags=["Guest Bookings"])
-    app.include_router(attachments.router,   prefix=PREFIX, tags=["Attachments"])
-    app.include_router(reports.router,       prefix=PREFIX, tags=["Reports"])
+    app.include_router(auth.router,            prefix=PREFIX, tags=["Auth"])
+    app.include_router(users.router,           prefix=PREFIX, tags=["Users"])
+    app.include_router(vehicles.router,        prefix=PREFIX, tags=["Vehicles"])
+    app.include_router(rooms.router,           prefix=PREFIX, tags=["Rooms"])
+    app.include_router(bookings.router,        prefix=PREFIX, tags=["Bookings"])
+    app.include_router(drivers.router,         prefix=PREFIX, tags=["Drivers"])
+    app.include_router(fuel_expenses.router,   prefix=PREFIX, tags=["Fuel Expenses"])
+    app.include_router(maintenance.router,     prefix=PREFIX, tags=["Maintenance"])
+    app.include_router(master_settings.router, prefix=PREFIX, tags=["Master Settings"])
+    app.include_router(guest_bookings.router,  prefix=PREFIX, tags=["Guest Bookings"])
+    app.include_router(attachments.router,     prefix=PREFIX, tags=["Attachments"])
+    app.include_router(reports.router,         prefix=PREFIX, tags=["Reports"])
 
     # ─── Startup ──────────────────────────────────────────────────────────────
     @app.on_event("startup")
     def on_startup():
         ok = check_db_connection()
         logger.info("✅ DB connected" if ok else "❌ DB connection FAILED")
+        if ok:
+            from app.database import SessionLocal
+            from app.services.master_setting_service import master_setting_service
+            db = SessionLocal()
+            try:
+                master_setting_service.seed_defaults(db)
+                logger.info("✅ Master settings seeded")
+            finally:
+                db.close()
 
     # ─── Health ───────────────────────────────────────────────────────────────
     @app.get("/health", tags=["Health"])

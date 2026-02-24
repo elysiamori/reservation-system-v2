@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from typing import Optional
 
 from app.database import get_db
-from app.dependencies import get_current_user, get_admin_user
+from app.dependencies import get_current_user, get_admin_user, get_admin_or_driver
 from app.models.user import User
 from app.models.role import RoleName
 from app.schemas.fuel_expense import FuelExpenseCreateRequest, FuelExpenseUpdateRequest
@@ -20,14 +20,15 @@ def list_expenses(
     limit:     int            = Query(20, ge=1, le=100),
     vehicleId: Optional[int]  = Query(None),
     driverId:  Optional[int]  = Query(None),
+    fuelType:  Optional[str]  = Query(None, description="BBM | LISTRIK"),
     startDate: Optional[str]  = Query(None),
     endDate:   Optional[str]  = Query(None),
     db:        Session        = Depends(get_db),
-    current_user: User        = Depends(get_current_user),
+    current_user: User        = Depends(get_admin_or_driver),
 ):
-    if current_user.role.name not in [RoleName.ADMIN, RoleName.DRIVER]:
-        raise ForbiddenException("Only ADMIN or DRIVER can access fuel expenses")
-    data, total = fuel_service.list_expenses(db, current_user, page, limit, vehicleId, driverId, startDate, endDate)
+    data, total = fuel_service.list_expenses(
+        db, current_user, page, limit, vehicleId, driverId, startDate, endDate, fuelType
+    )
     return paginated_response("Fuel expenses retrieved", data, total, page, limit)
 
 
@@ -35,14 +36,14 @@ def list_expenses(
 def get_expense(
     expense_id: int,
     db:         Session = Depends(get_db),
-    current_user: User  = Depends(get_current_user),
+    current_user: User  = Depends(get_admin_or_driver),
 ):
-    if current_user.role.name not in [RoleName.ADMIN, RoleName.DRIVER]:
-        raise ForbiddenException("Only ADMIN or DRIVER can access fuel expenses")
-    return success_response("Fuel expense retrieved", fuel_service.get_expense(db, expense_id, current_user))
+    return success_response("Fuel expense retrieved",
+                            fuel_service.get_expense(db, expense_id, current_user))
 
 
-@router.post("", status_code=status.HTTP_201_CREATED, summary="Submit fuel expense (Driver)")
+@router.post("", status_code=status.HTTP_201_CREATED,
+             summary="Submit fuel expense — BBM or Listrik (Driver)")
 def create_expense(
     body: FuelExpenseCreateRequest,
     db:   Session = Depends(get_db),
@@ -50,8 +51,8 @@ def create_expense(
 ):
     if current_user.role.name != RoleName.DRIVER:
         raise ForbiddenException("Only DRIVER can submit fuel expenses")
-    data = fuel_service.create_expense(db, body, current_user)
-    return success_response("Fuel expense submitted successfully", data)
+    return success_response("Fuel expense submitted successfully",
+                            fuel_service.create_expense(db, body, current_user))
 
 
 @router.put("/{expense_id}", summary="Update fuel expense (Admin)")
@@ -61,8 +62,8 @@ def update_expense(
     db:         Session = Depends(get_db),
     current_user: User  = Depends(get_admin_user),
 ):
-    data = fuel_service.update_expense(db, expense_id, body, current_user)
-    return success_response("Fuel expense updated", data)
+    return success_response("Fuel expense updated",
+                            fuel_service.update_expense(db, expense_id, body, current_user))
 
 
 @router.delete("/{expense_id}", summary="Delete fuel expense (Admin)")

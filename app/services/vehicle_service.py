@@ -26,6 +26,7 @@ def _serialize(v: Vehicle) -> dict:
         "model":           v.model,
         "year":            v.year,
         "currentOdometer": v.currentOdometer,
+        "capacity":        v.capacity,
         "category":        {"id": v.category.id, "name": v.category.name},
     }
 
@@ -79,6 +80,7 @@ class VehicleService:
             year=data.year,
             currentOdometer=data.currentOdometer,
             categoryId=data.categoryId,
+            capacity=data.capacity,
         )
         db.add(vehicle)
         db.flush()
@@ -106,6 +108,7 @@ class VehicleService:
         if data.currentOdometer is not None: v.currentOdometer = data.currentOdometer
         if data.categoryId:      v.categoryId       = data.categoryId
         if data.plateNumber:     v.plateNumber      = data.plateNumber
+        if data.capacity is not None: v.capacity    = data.capacity
 
         log_action(db, actor_id, "UPDATE", "Vehicle", v.id, f"Updated vehicle {v.plateNumber}")
         db.commit()

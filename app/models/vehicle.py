@@ -15,6 +15,7 @@ class Vehicle(Base):
     year            = Column(Integer, nullable=False)
     currentOdometer = Column(Integer, default=0, nullable=False)
     categoryId      = Column(Integer, ForeignKey("vehicle_categories.id"), nullable=False)
+    capacity        = Column(Integer, nullable=False, default=4)  # max passengers
 
     # ─── Relationships ─────────────────────────────────────────────────────────
     resource     = relationship("Resource", back_populates="vehicle")

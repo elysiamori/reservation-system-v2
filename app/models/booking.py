@@ -27,17 +27,24 @@ class Booking(Base):
     status       = Column(Enum(BookingStatus), default=BookingStatus.PENDING, nullable=False, index=True)
     approvedById = Column(Integer, ForeignKey("users.id"), nullable=True)
     approvedAt   = Column(TIMESTAMP(timezone=True), nullable=True)
+    # Vehicle-specific: assigned by admin after approval
+    assignedDriverId  = Column(Integer, ForeignKey("drivers.id"), nullable=True)
+    assignedVehicleId = Column(Integer, ForeignKey("vehicles.id"), nullable=True)
+    assignedAt        = Column(TIMESTAMP(timezone=True), nullable=True)
     returnedAt   = Column(TIMESTAMP(timezone=True), nullable=True)
     createdAt    = Column(TIMESTAMP(timezone=True), server_default=func.now(), nullable=False)
     updatedAt    = Column(TIMESTAMP(timezone=True), server_default=func.now(),
                           onupdate=func.now(), nullable=False)
 
     # ─── Relationships ─────────────────────────────────────────────────────────
-    user          = relationship("User", foreign_keys=[userId], back_populates="bookings")
-    resource      = relationship("Resource", back_populates="bookings")
-    approved_by   = relationship("User", foreign_keys=[approvedById], back_populates="approved_bookings")
-    approval_logs = relationship("ApprovalLog", back_populates="booking", cascade="all, delete-orphan")
-    fuel_expenses = relationship("FuelExpense", back_populates="booking")
+    user              = relationship("User", foreign_keys=[userId], back_populates="bookings")
+    resource          = relationship("Resource", back_populates="bookings")
+    approved_by       = relationship("User", foreign_keys=[approvedById], back_populates="approved_bookings")
+    assigned_driver   = relationship("Driver", foreign_keys=[assignedDriverId], backref="booking_assignments")
+    assigned_vehicle  = relationship("Vehicle", foreign_keys=[assignedVehicleId], backref="booking_assignments")
+    approval_logs     = relationship("ApprovalLog", back_populates="booking", cascade="all, delete-orphan")
+    fuel_expenses     = relationship("FuelExpense", back_populates="booking")
+    driver_ratings    = relationship("DriverRating", back_populates="booking", cascade="all, delete-orphan")
 
     def __repr__(self):
         return f"<Booking id={self.id} status={self.status} resourceId={self.resourceId}>"

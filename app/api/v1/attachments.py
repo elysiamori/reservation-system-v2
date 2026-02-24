@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, status
 from sqlalchemy.orm import Session
 
 from app.database import get_db
-from app.dependencies import get_current_user, get_admin_user, get_approver_or_admin
+from app.dependencies import get_current_user, get_admin_user
 from app.models.user import User
 from app.schemas.attachment import AttachmentCreateRequest, ProfilePhotoRequest
 from app.schemas.common import success_response
@@ -27,12 +27,12 @@ def list_vehicle_attachments(
 
 @router.post("/vehicles/{vehicle_id}/attachments",
              status_code=status.HTTP_201_CREATED,
-             summary="Tambah lampiran ke kendaraan (Admin)")
+             summary="Tambah lampiran ke kendaraan (semua user terotentikasi)")
 def add_vehicle_attachment(
     vehicle_id: int,
     body: AttachmentCreateRequest,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_admin_user),
+    current_user: User = Depends(get_current_user),
 ):
     data = svc.add_vehicle_attachment(db, vehicle_id, body, current_user.id)
     return success_response("Lampiran berhasil ditambahkan", data)
@@ -54,12 +54,12 @@ def list_room_attachments(
 
 @router.post("/rooms/{room_id}/attachments",
              status_code=status.HTTP_201_CREATED,
-             summary="Tambah lampiran ke ruangan (Admin)")
+             summary="Tambah lampiran ke ruangan (semua user terotentikasi)")
 def add_room_attachment(
     room_id: int,
     body: AttachmentCreateRequest,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_admin_user),
+    current_user: User = Depends(get_current_user),
 ):
     data = svc.add_room_attachment(db, room_id, body, current_user.id)
     return success_response("Lampiran berhasil ditambahkan", data)
@@ -93,7 +93,7 @@ def add_booking_attachment(
 
 
 # ══════════════════════════════════════════════════════
-#  DELETE (shared — cek ownership di service)
+#  DELETE
 # ══════════════════════════════════════════════════════
 @router.delete("/attachments/{attachment_id}",
                status_code=status.HTTP_200_OK,
@@ -141,3 +141,4 @@ def update_user_photo(
 ):
     data = svc.update_profile_photo(db, user_id, body)
     return success_response("Foto profil berhasil diperbarui", data)
+

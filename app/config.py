@@ -8,7 +8,7 @@ class Settings(BaseSettings):
     APP_ENV:  str = "development"
     APP_DEBUG: bool = True
     APP_HOST:  str = "0.0.0.0"
-    APP_PORT:  int = 8000
+    APP_PORT:  int = 3000
 
     # ─── Database ──────────────────────────────────────────────────────────────
     DATABASE_URL:          str
@@ -28,7 +28,7 @@ class Settings(BaseSettings):
     OTP_LENGTH:         int = 6
 
     # ─── CORS ──────────────────────────────────────────────────────────────────
-    CORS_ORIGINS: str = "http://localhost:8000,http://localhost:5501,https://reservation-system-kce.netlify.app"
+    CORS_ORIGINS: str = "http://localhost:3000,http://localhost:5501,https://reservation-system-kce.netlify.app"
 
     def get_cors_origins(self) -> List[str]:
         return [o.strip() for o in self.CORS_ORIGINS.split(",")]

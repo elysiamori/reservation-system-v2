@@ -26,6 +26,7 @@ class VehicleCreateRequest(BaseModel):
     year:            int
     currentOdometer: int = 0
     categoryId:      int
+    capacity:        int = 4   # number of passengers
 
     @field_validator("year")
     @classmethod
@@ -37,6 +38,12 @@ class VehicleCreateRequest(BaseModel):
     @classmethod
     def check_odo(cls, v):
         if v < 0: raise ValueError("Odometer cannot be negative")
+        return v
+
+    @field_validator("capacity")
+    @classmethod
+    def check_capacity(cls, v):
+        if v <= 0: raise ValueError("Capacity must be greater than 0")
         return v
 
     @field_validator("plateNumber")
@@ -54,6 +61,7 @@ class VehicleUpdateRequest(BaseModel):
     currentOdometer: Optional[int] = None
     categoryId:      Optional[int] = None
     plateNumber:     Optional[str] = None
+    capacity:        Optional[int] = None
 
 
 class VehicleStatusRequest(BaseModel):
